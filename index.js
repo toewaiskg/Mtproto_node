@@ -1,9 +1,11 @@
+const { application } = require('express');
 var express = require('express');
-var app = express();
 
-app.get('/', function (req, res) {
-    res.send('Hello World');
-});
+const { login, sendCode, signIn } = require('./login');
+
+var parseUrl = require('body-parser');
+
+var app = express();
 
 
 app.get('/home', function (req, res) {
@@ -29,7 +31,40 @@ const data = [
     { 'name': 'Olivia', 'id': 12 }
 ];
 app.get('/api/peoples', function (req, res) {
-    res.send(data);
+    res.send(JSON.stringify(data));
 });
 
-app.listen('3000');
+let encodeUrl = parseUrl.urlencoded({ extended: false })
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/form.html')
+})
+
+app.post('/test', encodeUrl, (req, res) => {
+    console.log('Form request:', req.body) //phone: 09xxxxxxx
+    signIn(req.body.phone, req.body.code);
+    //res.sendFile(__dirname + '/insertphoneandcodeform.html')
+})
+
+
+app.post('/login', encodeUrl, (req, res) => {
+
+    sendCode(req.body.phone);
+    // var data={"phone": req.body.phone}
+    console.log('Form request:', req.body) //phone: 09xxxxxxx
+    res.sendFile(__dirname + '/insertphoneandcodeform.html')
+})
+
+
+app.post('/codeConfirm', (req, res) => {
+
+    // signIn(req.body.phone, req.body.code);
+    console.log('Your phone code is ' + req.body) //code: 234567b
+
+
+})
+
+
+
+app.listen('3000', () => { 'the sersver is running....' });
+//app.listen('http://192.168.100.27',3001, () => { 'the sersver is running....' });
